@@ -13,8 +13,8 @@
 
 建物や村は写真や資料をもとにした簡略な再現で、距離や部屋の大きさは歩きやすく整えています。方角はおおむね実際どおり（北がシュヴァンガウの野原、南がアルプス）。「夢の完成図」は王の計画をもとにした想像です。
 
-## 画像の差し替え（任意）
-`img/` に次の名前の画像を置くと、手続き生成の絵の代わりに使われます（無ければ今のまま）。
+## 画像
+`img/` の画像（他のAIで作成）を読み込みます。無い画像は手続き生成の絵のまま動きます。
 `throne_apse.webp`（後陣の金地の絵）・`throne_kings.webp`（6人の王）・`throne_floor.webp`（床のモザイク）・`throne_ceiling.webp`（星空の天井）・`singers_mural.webp`（パルジファルの壁画）・`singers_stage.webp`（魔法の庭）・`singers_ceiling.webp`（格天井）・`mural_lohengrin.webp`・`mural_tristan.webp`・`mural_tannhauser.webp`・`mural_minnesang.webp`・`oak_carving.webp`・`swan_silk.webp`・`limestone.webp`・`village_house.webp`
 
 ## 公開URL
