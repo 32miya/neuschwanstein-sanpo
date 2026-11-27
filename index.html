@@ -1506,6 +1506,8 @@ function stampShot(src){ const img=new Image(); img.onload=()=>{ const c=makeCan
 /* ============================================================
    メインループ
    ============================================================ */
+/* 世界さんぽディフェンス（?td のときだけ。defence-castle/world/ のゲームが画面とカメラを受け持つ） */
+const TD=/[?&]td\b/.test(location.search);
 let START=true, last=performance.now(), T0=performance.now(), stepAcc=0, bellT=25, birdT=6, cowT=8, dripT=2, chiselT=1, steamT=3;
 const tmpV=new THREE.Vector3(), _q=new THREE.Quaternion(), _m=new THREE.Matrix4(), _s=new THREE.Vector3();
 let firstIn=false, firstF3=false, firstF4=false, firstBridge=false, firstThrone=false, firstSingers=false;
@@ -1584,7 +1586,7 @@ function step(dt,t){
 let envK=0, miniT=0;
 const LIFTMARK=new THREE.Mesh(new THREE.RingGeometry(.5,.75,24),new THREE.MeshBasicMaterial({color:'#ffd070',transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide})); LIFTMARK.rotation.x=-PI/2; scene.add(LIFTMARK);
 function loop(now){ requestAnimationFrame(loop); const dt=Math.min(.1,(now-last)/1000); last=now; const t=(now-T0)/1000;
-  if(!START) step(dt,t); else { const a=t*.03; camera.position.set(140+Math.sin(a)*10,48+Math.sin(a*.7)*1.5,210+Math.cos(a)*4); camera.lookAt(-14,-4,-4); const d=window.SUND; sun.position.set(d.x*500,d.y*500,d.z*500); sun.target.position.set(0,0,0); sun.target.updateMatrixWorld(); renderer.shadowMap.needsUpdate=true; animWorld(dt,t); }
+  if(TD&&window.SekaiTD&&SekaiTD.ready){ SekaiTD.frame(dt,t); if(typeof animWorld==='function') animWorld(dt,t); } else if(!START) step(dt,t); else { const a=t*.03; camera.position.set(140+Math.sin(a)*10,48+Math.sin(a*.7)*1.5,210+Math.cos(a)*4); camera.lookAt(-14,-4,-4); const d=window.SUND; sun.position.set(d.x*500,d.y*500,d.z*500); sun.target.position.set(0,0,0); sun.target.updateMatrixWorld(); renderer.shadowMap.needsUpdate=true; animWorld(dt,t); }
   { let ly=LIFT.ys[0]; for(const y of LIFT.ys) if(Math.abs(P.y-y)<Math.abs(P.y-ly)) ly=y; LIFTMARK.position.set(LIFT.x,ly+.04,LIFT.z); LIFTMARK.material.opacity=.4+.25*Math.sin(t*3); LIFTMARK.visible=!START&&inPalas(P.x,P.z)&&!LIFTA; }
   if(window.DEBUGCAM){ camera.position.set(...DEBUGCAM.p); camera.lookAt(...DEBUGCAM.l); }
   if(needRefl>0){ needRefl--; if(needRefl===0) updateRefl(); }
@@ -1679,6 +1681,21 @@ $('goBtn').disabled=false; $('goBtn').textContent='城への坂道から歩く';
 $('goBtn').onclick=()=>{ START=false; $('start').hidden=true; SND.init(); SND.setOn(SOUND); warpTo(START_POS.x,groundY(START_POS.x,START_POS.z),START_POS.z,START_POS.yaw); P.pitch=.1; say('','坂の上に赤い門の館。くぐって中庭へ、本館パラスから王の部屋へ。マリエン橋へは門の前の広場から南の小道です。',8); setTimeout(()=>SND.bell(.4),800); };
 </script>
 
+<script>
+/* 世界さんぽディフェンスの入口（?td のときだけ。地形・高さ・時代の切り替えをゲームに渡して、defence-castle/world/ を読む） */
+if(TD){
+  $('start').hidden=true;
+  if(typeof setTide==='function'&&typeof tideStep==='function'){ setTide(0,true); tideStep(60); }   /* 潮が引いた干潟を敵が渡ってくる */
+  const GF=typeof groundY==='function'?groundY:typeof groundAt==='function'?((x,z)=>{ const v=groundAt(x,z); return v==null?0:v; }):typeof terrH==='function'?terrH:(()=>0);
+  window.__sekai={THREE,scene,camera,renderer,hemi:typeof hemi!=='undefined'?hemi:null,sun:typeof sun!=='undefined'?sun:null,setEra,setQual:typeof setQual==='function'?setQual:null,
+    groundY:GF,surfaceAt,blocked,
+    hy:(x,z,y)=>{ const g=GF(x,z); const s=surfaceAt(x,z,y==null?g+12:y); return s>-1e8?Math.max(g,s):g; },
+    keep:(typeof sky!=='undefined'?[sky]:[]).concat(typeof TERR!=='undefined'?TERR:[],typeof LAKES!=='undefined'?LAKES:[],typeof WATERS!=='undefined'?WATERS:[],typeof WATER!=='undefined'&&WATER&&WATER.isObject3D?[WATER]:[]),
+    hide:()=>[window.PIM,typeof PIMn!=='undefined'?PIMn:null,typeof PIMp!=='undefined'?PIMp:null].filter(Boolean)};
+  window.TD_MAP='neuschwanstein'; window.TD_GAME_URL='/defence-castle/world/';
+  for(const src of ['/defence-castle/world/stages.js','/defence-castle/world/maps/neuschwanstein.js','/defence-castle/world/td.js']){ const sc=document.createElement('script'); sc.src=src; sc.async=false; document.body.appendChild(sc); }
+}
+</script>
 <!-- sekai-portal:begin（世界さんぽ入口へ戻るボタン・各名所共通。このブロックごと </body> の直前に貼る） -->
 <style>
 .sekai-back{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin-top:2px;padding:9px 14px;border:1px solid rgba(201,163,92,.45);border-radius:10px;
